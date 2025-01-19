@@ -214,14 +214,6 @@ const TransactionManagement = () => {
                 setDateRange({ ...dateRange, start: e.target.value })
               }
             />
-            {/* <input
-              type="date"
-              className="w-full px-3 py-2 border rounded-lg text-sm"
-              value={dateRange.end}
-              onChange={(e) =>
-                setDateRange({ ...dateRange, end: e.target.value })
-              }
-            /> */}
           </div>
 
           <select
@@ -316,7 +308,8 @@ const TransactionManagement = () => {
                             : "text-red-600"
                         }`}
                       >
-                        ${Math.abs(transaction.amount).toLocaleString()}
+                        {Math.abs(transaction.amount).toLocaleString()}
+                        frw
                       </td>
                       <td className={`py-1 px-2 text-center `}>
                         {new Date(transaction.createdAt).toLocaleDateString()}
@@ -480,6 +473,39 @@ const TransactionManagement = () => {
                   }
                 />
               </div>
+
+              {/* Checkbox for managing budget */}
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={formData.manageWithBudget}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      manageWithBudget: e.target.checked,
+                    })
+                  }
+                />
+                <label className="text-sm">
+                  Manage this transaction with a budget?
+                </label>
+              </div>
+
+              {/* Budget ID input field (only shown if checkbox is checked) */}
+              {formData.manageWithBudget && (
+                <div>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-3 py-2 border rounded-lg text-sm"
+                    value={formData.budgetId || ""}
+                    placeholder="Paste Budget ID here"
+                    onChange={(e) =>
+                      setFormData({ ...formData, budgetId: e.target.value })
+                    }
+                  />
+                </div>
+              )}
 
               <button
                 type="submit"

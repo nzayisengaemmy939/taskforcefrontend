@@ -21,30 +21,32 @@ const Reports = () => {
   }, []);
 
   const sampleData = {
-    accounts: ['Bank', 'Cash', 'Mobile Money'], // Assuming these come from your backend too
+    accounts: ['Bank', 'Cash', 'Mobile Money'], 
   };
 
   const summaryData = useMemo(() => {
     const filteredTransactions = transactions.filter(transaction => {
-      const inDateRange = (!dateRange.start || transaction.date >= dateRange.start) &&
-                         (!dateRange.end || transaction.date <= dateRange.end);
+      const inDateRange = (!dateRange.start || new Date(transaction.date) >= new Date(dateRange.start)) &&
+                         (!dateRange.end || new Date(transaction.date) <= new Date(dateRange.end));
       const inAccounts = selectedAccounts.length === 0 || selectedAccounts.includes(transaction.account);
       return inDateRange && inAccounts;
     });
-
-    const incomeData = filteredTransactions.filter(t => t.amount > 0);
-    const expenseData = filteredTransactions.filter(t => t.amount < 0);
-
+  
+    // Separate transactions into income and expenses
+    const incomeData = filteredTransactions.filter(t => t.amount > 0); // Ensure amounts are treated as numbers
+    const expenseData = filteredTransactions.filter(t => t.amount < 0); // Ensure amounts are treated as numbers
+  
     return {
-      totalIncome: incomeData.reduce((sum, t) => sum + t.amount, 0),
-      totalExpenses: Math.abs(expenseData.reduce((sum, t) => sum + t.amount, 0)),
+      totalIncome: incomeData.reduce((sum, t) => sum + parseFloat(t.amount), 0), // Ensure number parsing
+      totalExpenses: Math.abs(expenseData.reduce((sum, t) => sum + parseFloat(t.amount), 0)), // Ensure number parsing
       categoryBreakdown: filteredTransactions.reduce((acc, t) => {
         const category = t.category;
-        acc[category] = (acc[category] || 0) + Math.abs(t.amount);
+        acc[category] = (acc[category] || 0) + Math.abs(parseFloat(t.amount)); // Ensure number parsing
         return acc;
       }, {}),
     };
-  }, [dateRange, selectedAccounts, transactions]);
+  }, [dateRange, transactions]);
+  
 
   const handleExport = () => {
     const doc = new jsPDF();

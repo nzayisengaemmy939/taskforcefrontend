@@ -176,7 +176,9 @@ const Budgets = () => {
             <tr className="border-b hover:bg-gray-50">
               <th className="p-2 text-left">Budget ID</th>
               <th className="p-2 text-left">category</th>
-              <th className="p-2 text-left">Total Income</th>
+              <th className="p-2 text-left">Total Amount</th>
+              <th className="p-2 text-left">Spent</th>
+              <th className="p-2 text-left">Remaining</th>
               <th className="p-2 text-left">Start Date</th>
               <th className="p-2 text-left">End Date</th>
               <th className="p-2 text-left">Recurring Type</th>
@@ -201,6 +203,8 @@ const Budgets = () => {
                 </td>
                 <td className="p-2">{budget.category}</td>
                 <td className="p-2">{budget.amount}</td>
+                <td className="p-2">{budget.spent}</td>
+                <td className="p-2">{budget.remaining}</td>
                 <td className="p-2">
                   {new Date(budget.startDate).toLocaleDateString()}
                 </td>

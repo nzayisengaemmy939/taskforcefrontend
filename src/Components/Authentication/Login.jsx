@@ -44,11 +44,11 @@ function Login() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-blue-50 to-blue-100 py-6 flex flex-col justify-center sm:py-12">
+    <div className="h-screen bg-blue-50  py-6 flex flex-col justify-center sm:py-12">
       <div className="relative py-3 sm:max-w-xl sm:mx-auto w-full px-4 sm:px-0">
         <ToastContainer></ToastContainer>
 
-        <div className="relative bg-white shadow-lg sm:rounded-xl px-4 py-10 sm:p-4">
+        <div className="relative bg-white  sm:rounded-xl px-4 py-10 sm:p-4">
           <div className="max-w-md mx-auto">
             <div className="divide-y divide-gray-200">
               <div className="text-center pb-8 flex justify-center items-center flex-col">

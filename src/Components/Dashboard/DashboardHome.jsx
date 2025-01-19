@@ -3,7 +3,6 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 import {
   Home,
   CreditCard,
@@ -21,13 +20,12 @@ import Topbar from "../../assets/bar/topbar";
 function DashboardHome() {
   const navigate = useNavigate();
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("id");
-    toast.success("Account removed successfully");
-    localStorage.removeItem("name");
-  
-      navigate("/")
-  
+    if (window.confirm("Are you sure you want to log out?")) {
+      localStorage.removeItem("token");
+
+      localStorage.removeItem("id");
+      navigate("/");
+    }
   };
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -106,8 +104,7 @@ function DashboardHome() {
           </NavLink>
         </div>
       </div>
-<Topbar  isModalOpen={isModalOpen} toggle={toggleModal}  text={"Account"}/>
-     
+      <Topbar isModalOpen={isModalOpen} toggle={toggleModal} text={"Account"} />
     </div>
   );
 }

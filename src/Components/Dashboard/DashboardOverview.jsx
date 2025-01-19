@@ -74,17 +74,17 @@ const DashboardOverview = () => {
         <Icon className="text-gray-400" size={12} />
       </div>
       <div className="flex items-center justify-between">
-        <p className="text-lg  text-gray-700">${amount.toLocaleString()}</p>
-        {trend && (
+        <p className="text-lg  text-gray-700">{amount.toLocaleString()}frw</p>
+        {/* {trend && (
           <span
             className={`text-xs ${
               trend > 0 ? "text-green-500" : "text-red-500"
             }`}
           >
             {trend > 0 ? "+" : ""}
-            {trend}%
+            {trend}
           </span>
-        )}
+        )} */}
       </div>
     </div>
   );
@@ -102,7 +102,7 @@ const DashboardOverview = () => {
 
         <StatCard
           title="Expenses"
-          amount="8,765"
+          amount={totalExpenses}
           icon={TrendingDown}
           trend={-5}
           style={{ backgroundColor: "#FDC4CB" }}
