@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { Plus, Search, Edit2, Trash2, X } from "lucide-react";
+import { Plus, Search, Edit2, Trash2, X, Trash, Pencil } from "lucide-react";
 import {
   getTransactions,
   updateTransaction,
@@ -40,7 +40,9 @@ const TransactionManagement = () => {
     account: "",
     description: "",
     type: "",
+     budgetId: "", 
   });
+  
   const [, setErrors] = useState({
     date: "",
     amount: "",
@@ -100,7 +102,6 @@ const TransactionManagement = () => {
   ];
 
   const accountTypes = ["Bank", "Mobile money", "Cash"];
-
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     const isValid = validateForm();
@@ -257,15 +258,15 @@ const TransactionManagement = () => {
             <table className="min-w-full table-auto mt-4">
               <thead>
                 <tr className="border-b">
-                  <th className="py-2 px-4 text-left">Date</th>
-                  <th className="py-2 px-4 text-left">Description</th>
-                  <th className="py-2 px-4 text-left">Category</th>
-                  <th className="py-2 px-4 text-left">Subcategory</th>
-                  <th className="py-2 px-4 text-left">Type</th>
-                  <th className="py-2 px-4 text-left">Account Type</th>
-                  <th className="py-2 px-4 text-center">Amount</th>
-                  <th className="py-2 px-4 text-center">Created at</th>
-                  <th className="py-2 px-4 text-left">Action</th>
+                  <th className="py-2 px-2 text-left">Date</th>
+                  <th className="py-2 px-2 text-left">Description</th>
+                  <th className="py-2 px-2 text-left">Category</th>
+                  <th className="py-2 px-2 text-left">Subcategory</th>
+                  <th className="py-2 px-2 text-left">Type</th>
+                  <th className="py-2 px-2 text-left">Account Type</th>
+                  <th className="py-2 px-2 text-center">Amount</th>
+                  <th className="py-2 px-2 text-center">Created at</th>
+                  <th className="py-2 px-2 text-left">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -314,18 +315,18 @@ const TransactionManagement = () => {
                       <td className={`py-1 px-2 text-center `}>
                         {new Date(transaction.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="py-1 px-2 text-center">
+                      <td className="py-1 px-2 text-center flex">
                         <button
                           onClick={() => handleEdit(transaction)}
-                          className="bg-green-500 text-white px-2 py-1 rounded-lg text-xs hover:bg-green-600 focus:outline-none"
+                          className="bg-green-100 text-green-500 px-2 py-1 rounded-lg text-xs hover:bg-green-600 focus:outline-none"
                         >
-                          Edit
+                         <Pencil />
                         </button>
                         <button
                           onClick={() => handleDeleteClick(transaction._id)}
-                          className="bg-red-500 text-white px-2 py-1 ml-2  text-xs rounded-lg hover:bg-red-600 focus:outline-none"
+                          className="bg-red-200 text-red-500 px-2 py-1  ml-2 text-xs rounded-md hover:bg-red-600 focus:outline-none"
                         >
-                          Delete
+                            <Trash />
                         </button>
                       </td>
                     </tr>
@@ -498,10 +499,10 @@ const TransactionManagement = () => {
                     type="text"
                     required
                     className="w-full px-3 py-2 border rounded-lg text-sm"
-                    value={formData.budgetId || ""}
+                    value={formData. budgetId || ""}
                     placeholder="Paste Budget ID here"
                     onChange={(e) =>
-                      setFormData({ ...formData, budgetId: e.target.value })
+                      setFormData({ ...formData,  budgetId: e.target.value })
                     }
                   />
                 </div>

@@ -1,4 +1,4 @@
-import { Copy, X } from "lucide-react";
+import { Copy, Edit, Pencil, Trash, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import {
   deleteBudget,
@@ -11,6 +11,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DeleteModal from "../Transactions/deleteModel";
 import UpdateModel from "./UpdateModel";
+import CategoryModal from "./CategoryModal";
 
 const Budgets = () => {
   const [amount, setAmount] = useState("");
@@ -27,6 +28,25 @@ const Budgets = () => {
   const [loading, setIsLoading] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [selectedBudget, setSelectedBudget] = useState(null);
+  const [budgets, setBudgets] = useState(data);
+
+  const handleOpenCategoryModal = (budget) => {
+    console.log("Opening Category Modal for Budget:", budget);
+    setSelectedBudget(budget);
+    setIsCategoryModalOpen(true);
+  };
+
+  const addCategoryToBudget = (budgetId, newCategory) => {
+    setBudgets((prevBudgets) =>
+      prevBudgets.map((budget) =>
+        budget._id === budgetId
+          ? { ...budget, categories: [...budget.categories, newCategory] }
+          : budget
+      )
+    );
+  };
 
   const formData = {
     amount,
@@ -86,11 +106,10 @@ const Budgets = () => {
   const handleEditBudget = (id) => {
     setSelectedBudgetId(id);
     setIsModalOpen2(true);
-    
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-2">
       <ToastContainer></ToastContainer>
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">All Budgets</h1>
@@ -171,26 +190,25 @@ const Budgets = () => {
           <CircularProgress />
         </div>
       ) : data.length > 0 ? (
-        <table className="w-full mt-6 bg-white rounded-md">
-          <thead>
-            <tr className="border-b hover:bg-gray-50">
-              <th className="p-2 text-left">Budget ID</th>
-              <th className="p-2 text-left">category</th>
-              <th className="p-2 text-left">Total Amount</th>
-              <th className="p-2 text-left">Spent</th>
-              <th className="p-2 text-left">Remaining</th>
-              <th className="p-2 text-left">Start Date</th>
-              <th className="p-2 text-left">End Date</th>
-              <th className="p-2 text-left">Recurring Type</th>
-              <th className="p-2 text-left">Created At</th>
-              <th className="p-2 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((budget) => (
-              <tr key={budget._id} className="border-b hover:bg-gray-50">
-                <td className="p-2">
-                  {" "}
+        <div className="w-full mt-6 overflow-x-auto bg-white rounded-md">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b hover:bg-gray-50">
+                <th className="p-2 text-left">Budget ID</th>
+                <th className="p-2 text-left">Category</th>
+                <th className="p-2 text-left">Amount</th>
+                <th className="p-2 text-left">Spent</th>
+                <th className="p-2 text-left">Remaining</th>
+                <th className="p-2 text-left">Start</th>
+                <th className="p-2 text-left">End</th>
+                <th className="p-2 text-left">Recurring Type</th>
+                {/* <th className="p-2 text-left">Created At</th> */}
+                <th className="p-2 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((budget) => (
+                <tr key={budget._id} className="border-b hover:bg-gray-50">
                   <td className="p-2">
                     <button
                       className="flex gap-2 items-center"
@@ -200,32 +218,39 @@ const Budgets = () => {
                       <Copy className="text-blue-500" size={15} />
                     </button>
                   </td>
-                </td>
-                <td className="p-2">{budget.category}</td>
-                <td className="p-2">{budget.amount}</td>
-                <td className="p-2">{budget.spent}</td>
-                <td className="p-2">{budget.remaining}</td>
-                <td className="p-2">
-                  {new Date(budget.startDate).toLocaleDateString()}
-                </td>
-                <td className="p-2">
-                  {new Date(budget.endDate).toLocaleDateString()}
-                </td>
-                <td className="p-2">{budget.recurringType}</td>
-                <td className="p-2">
-                  {new Date(budget.createdAt).toLocaleDateString()}
-                </td>{" "}
-                {/* Display createdAt */}
-                <td className="p-2">
-                  <button
-                    onClick={() => handleDeleteClick(budget._id)}
-                    className="bg-red-500 text-white px-2 py-1 rounded-md mr-2"
-                  >
-                    Delete
-                  </button>
-                  
-                    <button className="bg-green-500 text-white px-2 py-1 rounded-md mr-2" onClick={() => handleEditBudget(budget._id)}>
-                      Edit
+                  <td className="p-2">{budget.category}</td>
+
+                  <td className="p-2">{budget.amount}</td>
+                  <td className="p-2 text-red-400">{budget.spent}</td>
+                  <td className="p-2 text-green-400">{budget.remaining}</td>
+                  <td className="p-2">
+                    {new Date(budget.startDate).toLocaleDateString()}
+                  </td>
+                  <td className="p-2">
+                    {new Date(budget.endDate).toLocaleDateString()}
+                  </td>
+                  <td className="p-2">{budget.recurringType}</td>
+                  {/* <td className="p-2">
+                    {new Date(budget.createdAt).toLocaleDateString()}
+                  </td> */}
+                  <td className="p-2 flex items-center">
+                    <button
+                      onClick={() => handleDeleteClick(budget._id)}
+                      className="bg-red-200 text-red-500 px-1 py-1 ml-2 text-xs rounded-md hover:bg-red-600 focus:outline-none"
+                    >
+                      <Trash />
+                    </button>
+                    <button
+                      className="bg-green-200 text-green-500 px-1 py-1 rounded-md mr-2"
+                      onClick={() => handleEditBudget(budget._id)}
+                    >
+                      <Pencil />
+                    </button>
+                    <button
+                      className="bg-gray-200 text-green-500 px-2 py-1 rounded-md"
+                      onClick={() => handleOpenCategoryModal(budget)}
+                    >
+                      Manage
                     </button>
                     {isModalOpen2 && (
                       <UpdateModel
@@ -233,15 +258,27 @@ const Budgets = () => {
                         setIsModalOpen={setIsModalOpen2}
                       />
                     )}
-                  
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : (
         <div className="w-full text-center py-4">No budgets available</div>
       )}
+      {isCategoryModalOpen && (
+        <CategoryModal
+          isOpen={isCategoryModalOpen}
+          budget={selectedBudget}
+          onClose={() => setIsCategoryModalOpen(false)}
+          onAddCategory={(budgetId, newCategory) => {
+            console.log(`Added category ${newCategory} to budget ${budgetId}`);
+            addCategoryToBudget(budgetId, newCategory);
+          }}
+        />
+      )}
+
       {isDeleteModalOpen && (
         <DeleteModal
           open={isDeleteModalOpen}

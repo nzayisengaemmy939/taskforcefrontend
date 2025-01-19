@@ -43,7 +43,7 @@ export const registerBudget = async (
       const userId = localStorage.getItem("id");
       const response = await axios.get(`${frontend}/budget/all/${userId}`);
       setData(response.data.budgets);
-      console.log(response.data.budgets, "data to fom budget");
+      
     } catch (err) {
       console.error("Error fetching budgets data:", err);
     } finally {
@@ -63,13 +63,31 @@ export const registerBudget = async (
         return true;
       } else {
         setIsLoading(false);
-        console.error("Failed to delete budget");
+       
         return false;
       }
     } catch (error) {
       setIsLoading(false);
-      console.error("Error deleting budget:", error);
+    
       return false;
     }
   };
+  
+ 
+
+  const addCategoryToBudget = async (budgetId, categoryName, subcategories) => {
+    try {
+      const frontend = import.meta.env.VITE_BACKEND_URL;
+      const response = await axios.patch(`${frontend}/budget/add-category/${budgetId}`, {
+        categoryName,
+        subcategories,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error adding category:", error);
+      throw new Error("Failed to add category");
+    }
+  };
+  
+  export default addCategoryToBudget;
   
