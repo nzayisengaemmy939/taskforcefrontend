@@ -1,9 +1,16 @@
 import { Copy, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { getBudgets, registerBudget } from "../../api service/budget/budget";
+import {
+  deleteBudget,
+  getBudgets,
+  registerBudget,
+} from "../../api service/budget/budget";
 import { data } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
-
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import DeleteModal from "../Transactions/deleteModel";
+import UpdateModel from "./UpdateModel";
 
 const Budgets = () => {
   const [amount, setAmount] = useState("");
@@ -12,12 +19,14 @@ const Budgets = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [recurringType, setRecurringType] = useState("weekly");
-  const [budget, setBudget] = useState([]); 
- const [loading, setIsLoading] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [budgetToDelete, setTransactionToDelete] = useState(null);
+  const [isModalOpen2, setIsModalOpen2] = useState(false);
+  const [selectedBudgetId, setSelectedBudgetId] = useState(null);
 
+  const [loading, setIsLoading] = useState(false);
 
-  const [isModalOpen, setIsModalOpen] = useState(false); 
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const formData = {
     amount,
@@ -26,27 +35,63 @@ const Budgets = () => {
     endDate,
     recurringType,
   };
-  const handleGenerateBudget = async() => {
+  const handleGenerateBudget = async () => {
     if (!amount || !category || !startDate || !endDate) {
-     
+      toast.error("Fill all field");
+      return 0;
     }
-    await registerBudget(formData,setIsLoading)
-    
-
-  }
-  useEffect(()=>{
-    getBudgets(setData,setIsLoading)
-  },[])
-  const copyBudgetIdToClipboard = (id) => {
-    navigator.clipboard.writeText(id).then(() => {
-      alert(`Budget ID ${id} copied to clipboard!`);
-    }).catch((error) => {
-      alert("Failed to copy budget ID: ", error);
-    });
+    await registerBudget(formData, setIsLoading);
+    setIsModalOpen(false);
   };
- 
+  useEffect(() => {
+    getBudgets(setData, setIsLoading);
+  }, []);
+  const copyBudgetIdToClipboard = (id) => {
+    navigator.clipboard
+      .writeText(id)
+      .then(() => {
+        alert(`Budget ID ${id} copied to clipboard!`);
+      })
+      .catch((error) => {
+        alert("Failed to copy budget ID: ", error);
+      });
+  };
+
+  const handleDeleteClick = (transactionId) => {
+    setTransactionToDelete(transactionId, setIsLoading);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (budgetToDelete) {
+      const isDeleted = await deleteBudget(budgetToDelete, setIsLoading);
+
+      if (isDeleted) {
+        setData((prevTransactions) =>
+          prevTransactions.filter((txn) => txn.id !== budgetToDelete)
+        );
+        toast.success("Budget deleted successfully.");
+      } else {
+        toast.error("Failed to delete budget.");
+      }
+      setTransactionToDelete(null);
+      setIsDeleteModalOpen(false);
+    }
+  };
+
+  const handleCloseDeleteModal = () => {
+    setTransactionToDelete(null);
+    setIsDeleteModalOpen(false);
+  };
+  const handleEditBudget = (id) => {
+    setSelectedBudgetId(id);
+    setIsModalOpen2(true);
+    
+  };
+
   return (
     <div className="p-6 space-y-6">
+      <ToastContainer></ToastContainer>
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">All Budgets</h1>
 
@@ -62,15 +107,15 @@ const Budgets = () => {
         <div className="fixed inset-0 bg-black bg-opacity-20 flex justify-center items-center top-[-24px] h-screen z-50">
           <div className="bg-white p-6 rounded-md shadow-md w-96 float-none">
             <div className="flex justify-between items-center">
-            <h2 className="text-xl font-bold mb-4">Generate Budget</h2>
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="text-red-600"
-            >
-              <X></X>
-            </button>
-              </div>
-           
+              <h2 className="text-xl font-bold mb-4">Generate Budget</h2>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-red-600"
+              >
+                <X></X>
+              </button>
+            </div>
+
             <input
               type="text"
               value={category}
@@ -93,7 +138,7 @@ const Budgets = () => {
               placeholder="start date"
               className="w-full p-2 border rounded-md mb-2"
             />
-               <label className="text-gray-600">End date</label>
+            <label className="text-gray-600">End date</label>
             <input
               type="date"
               value={endDate}
@@ -112,16 +157,19 @@ const Budgets = () => {
             <button
               onClick={handleGenerateBudget}
               className="w-full bg-blue-500 text-white p-2 rounded-md"
-            disabled={loading}>
+              disabled={loading}
+            >
               {loading ? "Generating..." : "Generate Budget"}
             </button>
-           
           </div>
         </div>
       )}
 
-{loading ? (
-        <div className="w-full text-center py-4"> <CircularProgress /></div>
+      {loading ? (
+        <div className="w-full text-center py-4">
+          {" "}
+          <CircularProgress />
+        </div>
       ) : data.length > 0 ? (
         <table className="w-full mt-6 bg-white rounded-md">
           <thead>
@@ -139,34 +187,49 @@ const Budgets = () => {
           <tbody>
             {data.map((budget) => (
               <tr key={budget._id} className="border-b hover:bg-gray-50">
-                <td className="p-2"> <td className="p-2">
-               
-                  <button
-                    className="flex gap-2 items-center"
-                    onClick={() => copyBudgetIdToClipboard(budget._id)}
-                  >
-                    <span>{budget._id}</span> <Copy className="text-blue-500" size={15}/>
-                  </button>
-                </td></td> 
+                <td className="p-2">
+                  {" "}
+                  <td className="p-2">
+                    <button
+                      className="flex gap-2 items-center"
+                      onClick={() => copyBudgetIdToClipboard(budget._id)}
+                    >
+                      <span>{budget._id}</span>{" "}
+                      <Copy className="text-blue-500" size={15} />
+                    </button>
+                  </td>
+                </td>
                 <td className="p-2">{budget.category}</td>
                 <td className="p-2">{budget.amount}</td>
-                <td className="p-2">{new Date(budget.startDate).toLocaleDateString()}</td>
-                <td className="p-2">{new Date(budget.endDate).toLocaleDateString()}</td>
+                <td className="p-2">
+                  {new Date(budget.startDate).toLocaleDateString()}
+                </td>
+                <td className="p-2">
+                  {new Date(budget.endDate).toLocaleDateString()}
+                </td>
                 <td className="p-2">{budget.recurringType}</td>
-                <td className="p-2">{new Date(budget.createdAt).toLocaleDateString()}</td> {/* Display createdAt */}
+                <td className="p-2">
+                  {new Date(budget.createdAt).toLocaleDateString()}
+                </td>{" "}
+                {/* Display createdAt */}
                 <td className="p-2">
                   <button
-                    
+                    onClick={() => handleDeleteClick(budget._id)}
                     className="bg-red-500 text-white px-2 py-1 rounded-md mr-2"
                   >
                     Delete
                   </button>
-                  <button
-                    className="bg-green-500 text-white px-2 py-1 rounded-md"
-                    onClick={() => alert("Edit functionality not implemented yet!")}
-                  >
-                    Edit
-                  </button>
+                  
+                    <button className="bg-green-500 text-white px-2 py-1 rounded-md mr-2" onClick={() => handleEditBudget(budget._id)}>
+                      Edit
+                    </button>
+                    {isModalOpen2 && (
+                      <UpdateModel
+                        budgetId={selectedBudgetId}
+                        setIsModalOpen={setIsModalOpen2}
+                      />
+                    )}
+                  
                 </td>
               </tr>
             ))}
@@ -174,6 +237,13 @@ const Budgets = () => {
         </table>
       ) : (
         <div className="w-full text-center py-4">No budgets available</div>
+      )}
+      {isDeleteModalOpen && (
+        <DeleteModal
+          open={isDeleteModalOpen}
+          onClose={handleCloseDeleteModal}
+          onDelete={handleDeleteConfirm}
+        />
       )}
     </div>
   );

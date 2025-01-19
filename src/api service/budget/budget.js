@@ -50,4 +50,26 @@ export const registerBudget = async (
       setIsLoading(false);
     }
   };
+
+  export const deleteBudget = async (budgetId, setIsLoading) => {
+    try {
+      setIsLoading(true);
+      const frontend = import.meta.env.VITE_BACKEND_URL;
+  
+      const response = await axios.delete(`${frontend}/budget/delete/${budgetId}`);
+  
+      if (response.status === 200) {
+        setIsLoading(false);
+        return true;
+      } else {
+        setIsLoading(false);
+        console.error("Failed to delete budget");
+        return false;
+      }
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Error deleting budget:", error);
+      return false;
+    }
+  };
   

@@ -30,13 +30,11 @@ const expenseCategories = [
   { name: "Entertainment", value: 100 },
 ];
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#FF6347"]; 
 
 const DashboardOverview = () => {
   const [timeFilter, setTimeFilter] = useState("monthly");
-  const totalIncome = 3500;
-  const totalExpenses = 1850;
-  const currentBalance = totalIncome - totalExpenses;
+
   const [transactions, setTransactions] = useState([]);
   const [report, setReport] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -62,6 +60,13 @@ const DashboardOverview = () => {
     income: data.totalIncome,
     expenses: data.totalExpense,
   }));
+  
+  const totalIncome = monthlyData.reduce((sum, data) => sum + data.income, 0);
+  const totalExpenses = monthlyData.reduce((sum, data) => sum + data.expenses, 0);
+  const currentBalance = totalIncome - totalExpenses;
+
+
+  
   const StatCard = ({ title, amount, icon: Icon, trend,style }) => (
     <div className={`p-2 rounded shadow-sm mb-8 `} style={style}>
       <div className="flex items-center justify-between mb-1">
@@ -148,12 +153,10 @@ const DashboardOverview = () => {
                 fill="#8884d8"
                 dataKey="value"
               >
-                {expenseCategories.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
+                {categories.map((entry, index) => (
+  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+))}
+
               </Pie>
               <Tooltip contentStyle={{ fontSize: "10px" }} />
             </PieChart>

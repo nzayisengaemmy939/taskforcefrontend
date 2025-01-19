@@ -41,7 +41,7 @@ export const loginUser = async (formData, navigate, setIsLoading) => {
     const response = await axios.post(`${frontend}/auth/login`, formData);
     localStorage.setItem("token", response.data.token);
     localStorage.setItem("id", response.data.user._id);
-    localStorage.setItem("name", response.data.user.firstName);
+
     console.log(response.data);
 
     toast.success("Login successful!");
@@ -74,7 +74,7 @@ export const resetPassword = async (formData, setIsLoading) => {
 
   try {
     const frontend = import.meta.env.VITE_BACKEND_URL;
-    const id=localStorage.getItem('id')
+    const id = localStorage.getItem("id");
     const response = await axios.post(`${frontend}/auth/send/email`, formData);
     toast.success("Reset email sent!");
   } catch (error) {
@@ -110,24 +110,25 @@ export const getProfile = async (setData, setIsLoading) => {
   }
 };
 
-
-
 export const updateProfile = async (userData, setIsLoading) => {
   try {
     setIsLoading(true);
-    const frontend = import.meta.env.VITE_BACKEND_URL
+    const frontend = import.meta.env.VITE_BACKEND_URL;
     const userId = localStorage.getItem("id");
-    const response = await axios.put(`${frontend}/auth/update/profile/${userId}`, userData, {
-      headers: {
-        'Content-Type': 'application/json',
-      
-      },
-    });
+    const response = await axios.put(
+      `${frontend}/auth/update/profile/${userId}`,
+      userData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     setIsLoading(false);
-    return response.data; 
+    return response.data;
   } catch (error) {
     setIsLoading(false);
-    console.error('Error updating profile:', error);
+    console.error("Error updating profile:", error);
     throw error;
   }
 };
@@ -135,19 +136,22 @@ export const updateProfile = async (userData, setIsLoading) => {
 export const updatePassword = async (passData, setIsLoading) => {
   try {
     setIsLoading(true);
-    const frontend = import.meta.env.VITE_BACKEND_URL
+    const frontend = import.meta.env.VITE_BACKEND_URL;
     const userId = localStorage.getItem("id");
-    const response = await axios.put(`${frontend}/auth/update/password/${userId}`, passData, {
-      headers: {
-        'Content-Type': 'application/json',
-      
-      },
-    });
+    const response = await axios.put(
+      `${frontend}/auth/update/password/${userId}`,
+      passData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     setIsLoading(false);
-    return response.data; 
+    return response.data;
   } catch (error) {
     setIsLoading(false);
-    console.error('Error updating password:', error);
+    console.error("Error updating password:", error);
     throw error;
   }
 };

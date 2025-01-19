@@ -22,9 +22,7 @@ const Settings = ({
     newPassword: "",
     confirmPassword: "",
   });
-  const [notifications, setNotifications] = useState({
-    emailAlerts: currentUser.emailAlerts || false,
-  });
+ 
 
   const handleProfileChange = (field, value) => {
     setProfile({ ...profile, [field]: value });
@@ -83,7 +81,7 @@ else{
       <h1 className="text-2xl font-bold mb-6">Settings</h1>
 
       <div className="flex border-b mb-6">
-        {["profile", "password", "notifications"].map((tab) => (
+        {["profile", "password"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
@@ -7,52 +7,53 @@ import { format } from 'date-fns';
 import { Download, FileText } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { getTransactions } from '../../api service/transactions/transaction';
 
 const Reports = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const [reportType, setReportType] = useState('summary');
+  const [transactions, setTransactions] = useState([]);
 
-  // Sample data
+  useEffect(() => {
+    getTransactions(setTransactions, setIsLoading);
+  }, []);
+
   const sampleData = {
-    transactions: [
-      { date: '2024-01-01', amount: 1200, category: 'Income', subCategory: 'Salary', account: 'Bank' },
-      { date: '2024-01-15', amount: -500, category: 'Bills', subCategory: 'Rent', account: 'Bank' },
-      { date: '2024-01-20', amount: -100, category: 'Food', subCategory: 'Groceries', account: 'Cash' },
-      // Add more sample transactions
-    ],
-    accounts: ['Bank', 'Cash', 'Mobile Money'],
+    accounts: ['Bank', 'Cash', 'Mobile Money'], // Assuming these come from your backend too
   };
 
-  // Calculate summary data
   const summaryData = useMemo(() => {
-    const filteredTransactions = sampleData.transactions.filter(transaction => {
+    const filteredTransactions = transactions.filter(transaction => {
       const inDateRange = (!dateRange.start || transaction.date >= dateRange.start) &&
                          (!dateRange.end || transaction.date <= dateRange.end);
       const inAccounts = selectedAccounts.length === 0 || selectedAccounts.includes(transaction.account);
       return inDateRange && inAccounts;
     });
 
+    const incomeData = filteredTransactions.filter(t => t.amount > 0);
+    const expenseData = filteredTransactions.filter(t => t.amount < 0);
+
     return {
-      totalIncome: filteredTransactions.reduce((sum, t) => t.amount > 0 ? sum + t.amount : sum, 0),
-      totalExpenses: Math.abs(filteredTransactions.reduce((sum, t) => t.amount < 0 ? sum + t.amount : sum, 0)),
+      totalIncome: incomeData.reduce((sum, t) => sum + t.amount, 0),
+      totalExpenses: Math.abs(expenseData.reduce((sum, t) => sum + t.amount, 0)),
       categoryBreakdown: filteredTransactions.reduce((acc, t) => {
         const category = t.category;
         acc[category] = (acc[category] || 0) + Math.abs(t.amount);
         return acc;
       }, {}),
     };
-  }, [dateRange, selectedAccounts, sampleData.transactions]);
+  }, [dateRange, selectedAccounts, transactions]);
 
   const handleExport = () => {
     const doc = new jsPDF();
-
     // Title
     doc.setFontSize(18);
     doc.text('Detailed Financial Transactions', 20, 10);
 
     // Add table for transactions
-    const tableData = sampleData.transactions.map(transaction => [
+    const tableData = transactions.map(transaction => [
       format(new Date(transaction.date), 'MM/dd/yyyy'),
       transaction.category,
       transaction.subCategory,
@@ -72,7 +73,6 @@ const Reports = () => {
 
   return (
     <div className="p-4 max-w-6xl mx-auto">
-      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-bold">Financial Reports</h1>
         <div className="flex gap-2">
@@ -86,10 +86,8 @@ const Reports = () => {
         </div>
       </div>
 
-      {/* Filters */}
       <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Date Range */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">Date Range</label>
             <div className="flex flex-col gap-2">
@@ -108,7 +106,6 @@ const Reports = () => {
             </div>
           </div>
 
-          {/* Account Selection */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">Accounts</label>
             <select
@@ -125,56 +122,34 @@ const Reports = () => {
         </div>
       </div>
 
-      {/* Report Type Selection */}
-      <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
-        <div className="flex gap-4">
-          <button
-            className={`px-4 py-2 rounded-lg text-sm ${
-              reportType === 'summary' ? 'bg-blue-500 text-white' : 'bg-gray-100'
-            }`}
-            onClick={() => setReportType('summary')}
-          >
-            Summary Report
-          </button>
-          <button
-            className={`px-4 py-2 rounded-lg text-sm ${
-              reportType === 'detailed' ? 'bg-blue-500 text-white' : 'bg-gray-100'
-            }`}
-            onClick={() => setReportType('detailed')}
-          >
-            Detailed Report
-          </button>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-       
+        {/* Income vs Expenses Bar Chart */}
         <div className="bg-white p-4 rounded-lg shadow-sm">
           <h3 className="text-sm font-semibold mb-4 text-blue-400">Income vs Expenses</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={[
-                { name: 'Income', amount: summaryData.totalIncome },
-                { name: 'Expenses', amount: summaryData.totalExpenses }
+              { name: 'Income', amount: summaryData.totalIncome },
+              { name: 'Expenses', amount: summaryData.totalExpenses }
             ]}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip contentStyle={{ fontSize: '12px' }} />
-                <Bar dataKey="amount" fill="#4CAF50" barSize={30} /> 
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+              <YAxis tick={{ fontSize: 12 }} />
+              <Tooltip contentStyle={{ fontSize: '12px' }} />
+              <Bar dataKey="amount" fill="#4CAF50" barSize={30} />
             </BarChart>
-        </ResponsiveContainer>
+          </ResponsiveContainer>
         </div>
 
-        {/* Category Breakdown Pie Chart */}
+        {/* Income and Expenses Breakdown Pie Chart */}
         <div className="bg-white p-4 rounded-lg shadow-sm">
-          <h3 className="text-sm font-semibold mb-4">Category Breakdown</h3>
+          <h3 className="text-sm font-semibold mb-4">Income and Expenses Breakdown</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={Object.entries(summaryData.categoryBreakdown).map(([name, value]) => ({
-                  name,
-                  value
-                }))}
+                data={[
+                  { name: 'Income', value: summaryData.totalIncome },
+                  { name: 'Expenses', value: summaryData.totalExpenses }
+                ]}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -184,8 +159,8 @@ const Reports = () => {
                 dataKey="value"
                 style={{ fontSize: "12px" }}
               >
-                {Object.entries(summaryData.categoryBreakdown).map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={`hsl(${index * 45}, 70%, 50%)`} />
+                {['Income', 'Expenses'].map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={index === 0 ? '#4CAF50' : '#FF6347'} />
                 ))}
               </Pie>
               <Tooltip />
@@ -194,7 +169,6 @@ const Reports = () => {
         </div>
       </div>
 
-      {/* Detailed Transactions Table */}
       {reportType === 'detailed' && (
         <div className="bg-white p-4 rounded-lg shadow-sm">
           <h3 className="text-sm font-semibold mb-4">Detailed Transactions</h3>
@@ -210,17 +184,13 @@ const Reports = () => {
                 </tr>
               </thead>
               <tbody>
-                {sampleData.transactions.map((transaction, index) => (
+                {transactions.map((transaction, index) => (
                   <tr key={index} className="border-b">
                     <td className="px-4 py-2">{format(new Date(transaction.date), 'MM/dd/yyyy')}</td>
                     <td className="px-4 py-2">{transaction.category}</td>
                     <td className="px-4 py-2">{transaction.subCategory}</td>
                     <td className="px-4 py-2">{transaction.account}</td>
-                    <td className={`px-4 py-2 text-right ${
-                      transaction.amount > 0 ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      ${Math.abs(transaction.amount).toLocaleString()}
-                    </td>
+                    <td className="px-4 py-2 text-right">${Math.abs(transaction.amount).toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>

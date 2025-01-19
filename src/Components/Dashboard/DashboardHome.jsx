@@ -23,11 +23,11 @@ function DashboardHome() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("id");
-    localStorage.removeItem("name");
     toast.success("Account removed successfully");
-    setTimeout(() => {
-      navigate("/");
-    }, 3000);
+    localStorage.removeItem("name");
+  
+      navigate("/")
+  
   };
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -100,7 +100,7 @@ function DashboardHome() {
           </nav>
         </div>
         <div className="p-4 mb-4" onClick={handleLogout}>
-          <NavLink className="flex items-center py-2 px-4 hover:bg-gray-700 hover:text-red-400 rounded text-sm">
+          <NavLink className="flex items-center py-2 px-4 hover:bg-blue-200 hover:text-red-400 rounded text-sm">
             <LogOut size={16} className="mr-3" />
             Logout
           </NavLink>

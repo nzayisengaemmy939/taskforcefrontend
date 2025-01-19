@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { Plus, Search, Edit2, Trash2, X } from "lucide-react";
-import { getTransactions, updateTransaction } from "../../api service/transactions/transaction";
+import {
+  getTransactions,
+  updateTransaction,
+} from "../../api service/transactions/transaction";
 import { CircularProgress } from "@mui/material";
 import { registerTransactions } from "../../api service/transactions/transaction";
 import "react-toastify/dist/ReactToastify.css";
@@ -12,7 +15,6 @@ import { deleteTransaction } from "../../api service/transactions/transaction";
 import DeleteModal from "./deleteModel";
 
 const TransactionManagement = () => {
- 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -25,7 +27,6 @@ const TransactionManagement = () => {
   const [transactions, setTransactions] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState(null);
-  
 
   useEffect(() => {
     getTransactions(setTransactions, setIsLoading);
@@ -89,7 +90,15 @@ const TransactionManagement = () => {
     return isValid;
   };
 
-  const categories = ["food", "salary"];
+  const categories = [
+    "Food",
+    "Salary",
+    "Transport",
+    "Shopping",
+    "Bills",
+    "Entertainment",
+  ];
+
   const accountTypes = ["Bank", "Mobile money", "Cash"];
 
   const handleFormSubmit = async (e) => {
@@ -109,9 +118,7 @@ const TransactionManagement = () => {
     }
   };
 
-
-
-  const handleEdit = async(transaction) => {
+  const handleEdit = async (transaction) => {
     setEditingTransaction(transaction);
     setIsEditModalOpen(true);
   };
@@ -121,16 +128,17 @@ const TransactionManagement = () => {
     setEditingTransaction(null);
   };
 
-  const handleSaveEdit = async(updatedTransactionData,transactionId) => {
- 
-    console.log('Updated transaction:',updatedTransactionData);
-const isUpdated = await updateTransaction(transactionId, updatedTransactionData, setIsLoading);
+  const handleSaveEdit = async (updatedTransactionData, transactionId) => {
+    console.log("Updated transaction:", updatedTransactionData);
+    const isUpdated = await updateTransaction(
+      transactionId,
+      updatedTransactionData,
+      setIsLoading
+    );
 
     if (isUpdated) {
-   
       toast.success("Transaction updated successfully.");
     } else {
-   
       toast.error("Failed to update transaction.");
     }
     setIsEditModalOpen(false);
@@ -141,11 +149,14 @@ const isUpdated = await updateTransaction(transactionId, updatedTransactionData,
     setTransactionToDelete(transactionId);
     setIsDeleteModalOpen(true);
   };
-  
+
   const handleDeleteConfirm = async () => {
     if (transactionToDelete) {
-      const isDeleted = await deleteTransaction(transactionToDelete, setIsLoading);
-  
+      const isDeleted = await deleteTransaction(
+        transactionToDelete,
+        setIsLoading
+      );
+
       if (isDeleted) {
         setTransactions((prevTransactions) =>
           prevTransactions.filter((txn) => txn.id !== transactionToDelete)
@@ -158,12 +169,12 @@ const isUpdated = await updateTransaction(transactionId, updatedTransactionData,
       setIsDeleteModalOpen(false);
     }
   };
-  
+
   const handleCloseDeleteModal = () => {
     setTransactionToDelete(null);
     setIsDeleteModalOpen(false);
   };
-  
+
   return (
     <div className="p-4 min-h-screen mx-auto">
       <ToastContainer></ToastContainer>
@@ -307,21 +318,24 @@ const isUpdated = await updateTransaction(transactionId, updatedTransactionData,
                       >
                         ${Math.abs(transaction.amount).toLocaleString()}
                       </td>
-                      <td
-                        className={`py-1 px-2 text-center `}
-                      >
-                     {new Date(transaction.createdAt).toLocaleDateString()}
+                      <td className={`py-1 px-2 text-center `}>
+                        {new Date(transaction.createdAt).toLocaleDateString()}
                       </td>
                       <td className="py-1 px-2 text-center">
-                        <button onClick={() => handleEdit(transaction)} className="bg-green-500 text-white px-2 py-1 rounded-lg text-xs hover:bg-green-600 focus:outline-none">
+                        <button
+                          onClick={() => handleEdit(transaction)}
+                          className="bg-green-500 text-white px-2 py-1 rounded-lg text-xs hover:bg-green-600 focus:outline-none"
+                        >
                           Edit
                         </button>
-                        <button    onClick={() => handleDeleteClick(transaction._id)} className="bg-red-500 text-white px-2 py-1 ml-2  text-xs rounded-lg hover:bg-red-600 focus:outline-none">
+                        <button
+                          onClick={() => handleDeleteClick(transaction._id)}
+                          className="bg-red-500 text-white px-2 py-1 ml-2  text-xs rounded-lg hover:bg-red-600 focus:outline-none"
+                        >
                           Delete
                         </button>
                       </td>
                     </tr>
-                    
                   ))
                 )}
               </tbody>
@@ -330,22 +344,20 @@ const isUpdated = await updateTransaction(transactionId, updatedTransactionData,
         )}
       </div>
       {isEditModalOpen && editingTransaction && (
-  <EditTransactionModal
-    isOpen={isEditModalOpen}
-    transaction={editingTransaction}
-    onClose={handleCloseEditModal}
-    onSave={handleSaveEdit}
-  />
-)}
-{
-  isDeleteModalOpen&&(
-    <DeleteModal
-    open={isDeleteModalOpen}
-    onClose={handleCloseDeleteModal}
-    onDelete={handleDeleteConfirm}
-  />
-  )
-}
+        <EditTransactionModal
+          isOpen={isEditModalOpen}
+          transaction={editingTransaction}
+          onClose={handleCloseEditModal}
+          onSave={handleSaveEdit}
+        />
+      )}
+      {isDeleteModalOpen && (
+        <DeleteModal
+          open={isDeleteModalOpen}
+          onClose={handleCloseDeleteModal}
+          onDelete={handleDeleteConfirm}
+        />
+      )}
 
       {isFormOpen && (
         <div className="fixed inset-0 bg-black z-50 bg-opacity-50 flex items-center justify-center">
