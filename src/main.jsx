@@ -13,8 +13,6 @@ import Budgets from "./Components/Budgets/Budgets";
 import Settings from "./Components/settings/Settings";
 import PasswordResetForm from "./Components/Authentication/ResetPassword";
 import Profile from "./Components/profile/profile";
-import { AuthProvider } from "./Components/authcontext/AuthContext";
-import PrivateRoute from "./Components/authcontext/private";
 
 const router = createBrowserRouter([
   { path: "/", element: <Login /> },
@@ -25,50 +23,50 @@ const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: (
-      <PrivateRoute>
+  
         <DashboardHome />
-      </PrivateRoute>
+  
     ),
     children: [
       { index: true, element: <DashboardOverview /> },
       {
         path: "transactions",
         element: (
-          <PrivateRoute>
+
             <TransactionManagement />
-          </PrivateRoute>
+         
         ),
       },
       {
         path: "reports",
         element: (
-          <PrivateRoute>
+        
             <Reports />
-          </PrivateRoute>
+        
         ),
       },
       {
         path: "budgets",
         element: (
-          <PrivateRoute>
+         
             <Budgets />
-          </PrivateRoute>
+         
         ),
       },
       {
         path: "settings",
         element: (
-          <PrivateRoute>
+          
             <Settings />
-          </PrivateRoute>
+        
         ),
       },
       {
         path: "dashboard/profile",
         element: (
-          <PrivateRoute>
+         
             <Profile />
-          </PrivateRoute>
+         
         ),
       },
     ],
@@ -77,8 +75,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <AuthProvider>
+  
       <RouterProvider router={router} />
-    </AuthProvider>
+  
   </StrictMode>
 );
