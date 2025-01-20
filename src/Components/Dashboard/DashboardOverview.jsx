@@ -183,7 +183,7 @@ const DashboardOverview = () => {
             Recent Transactions
           </h3>
           <div className="flex items-center space-x-2">
-            <div className="relative">
+            {/* <div className="relative">
               <input
                 type="text"
                 placeholder="Search..."
@@ -193,14 +193,14 @@ const DashboardOverview = () => {
                 className="absolute left-1 top-1 text-gray-400"
                 size={12}
               />
-            </div>
-            <select className="border rounded text-xs px-1 py-0.5">
+            </div> */}
+            {/* <select className="border rounded text-xs px-1 py-0.5">
               <option value="all">All</option>
               <option value="income">Income</option>
               <option value="food">Food</option>
               <option value="bills">Bills</option>
               <option value="shopping">Shopping</option>
-            </select>
+            </select> */}
           </div>
         </div>
 

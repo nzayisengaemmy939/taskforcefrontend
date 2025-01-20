@@ -40,9 +40,9 @@ const TransactionManagement = () => {
     account: "",
     description: "",
     type: "",
-     budgetId: "", 
+    budgetId: "",
   });
-  
+
   const [, setErrors] = useState({
     date: "",
     amount: "",
@@ -175,6 +175,38 @@ const TransactionManagement = () => {
     setTransactionToDelete(null);
     setIsDeleteModalOpen(false);
   };
+  const filteredTransactions = transactions.filter((transaction) => {
+    if (
+      searchTerm &&
+      !transaction.description.toLowerCase().includes(searchTerm.toLowerCase())
+    ) {
+      return false;
+    }
+
+    if (
+      (dateRange.start &&
+        new Date(transaction.date) < new Date(dateRange.start)) ||
+      (dateRange.end && new Date(transaction.date) > new Date(dateRange.end))
+    ) {
+      return false;
+    }
+
+    if (
+      selectedCategory !== "all" &&
+      transaction.category !== selectedCategory
+    ) {
+      return false;
+    }
+
+    if (
+      selectedAccountType !== "all" &&
+      transaction.account !== selectedAccountType
+    ) {
+      return false;
+    }
+
+    return true;
+  });
 
   return (
     <div className="p-4 min-h-screen mx-auto">
@@ -270,47 +302,27 @@ const TransactionManagement = () => {
                 </tr>
               </thead>
               <tbody>
-                {transactions.length === 0 ? (
+                {filteredTransactions.length === 0 ? (
                   <tr>
                     <td colSpan="8" className="py-4 text-center text-gray-500">
                       No transactions available.
                     </td>
                   </tr>
                 ) : (
-                  transactions.map((transaction) => (
-                    <tr
-                      key={transaction.id}
-                      className="border-b hover:bg-gray-50"
-                    >
-                      <td className="py-1 px-2">
-                        {format(new Date(transaction.date), "MM/dd/yy")}
-                      </td>
+                  filteredTransactions.map((transaction) => (
+                    <tr key={transaction.id} className="border-b hover:bg-gray-50">
+                      <td className="py-1 px-2">{format(new Date(transaction.date), "MM/dd/yy")}</td>
                       <td className="py-1 px-2">{transaction.description}</td>
                       <td className="py-1 px-2">
-                        <span
-                          className={`px-1 py-0.5 rounded-full text-xs ${
-                            transaction.category === "Income"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-blue-100 text-blue-800"
-                          }`}
-                        >
+                        <span className={`px-1 py-0.5 rounded-full text-xs ${transaction.category === "Income" ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"}`}>
                           {transaction.category}
                         </span>
                       </td>
                       <td className="py-1 px-2">{transaction.subcategory}</td>
                       <td className="py-1 px-2">{transaction.type}</td>
-                      <td className="py-1 px-2 text-center">
-                        {transaction.account}
-                      </td>
-                      <td
-                        className={`py-1 px-2 text-center ${
-                          transaction.amount > 0
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {Math.abs(transaction.amount).toLocaleString()}
-                        frw
+                      <td className="py-1 px-2 text-center">{transaction.account}</td>
+                      <td className={`py-1 px-2 text-center ${transaction.amount > 0 ? "text-green-600" : "text-red-600"}`}>
+                        {Math.abs(transaction.amount).toLocaleString()} frw
                       </td>
                       <td className={`py-1 px-2 text-center `}>
                         {new Date(transaction.createdAt).toLocaleDateString()}
@@ -320,19 +332,20 @@ const TransactionManagement = () => {
                           onClick={() => handleEdit(transaction)}
                           className="bg-green-100 text-green-500 px-2 py-1 rounded-lg text-xs hover:bg-green-600 focus:outline-none"
                         >
-                         <Pencil />
+                          <Pencil />
                         </button>
                         <button
                           onClick={() => handleDeleteClick(transaction._id)}
-                          className="bg-red-200 text-red-500 px-2 py-1  ml-2 text-xs rounded-md hover:bg-red-600 focus:outline-none"
+                          className="bg-red-200 text-red-500 px-2 py-1 ml-2 text-xs rounded-md hover:bg-red-600 focus:outline-none"
                         >
-                            <Trash />
+                          <Trash />
                         </button>
                       </td>
                     </tr>
                   ))
                 )}
               </tbody>
+            
             </table>
           </div>
         )}
@@ -475,7 +488,6 @@ const TransactionManagement = () => {
                 />
               </div>
 
-              {/* Checkbox for managing budget */}
               <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -492,17 +504,17 @@ const TransactionManagement = () => {
                 </label>
               </div>
 
-              {/* Budget ID input field (only shown if checkbox is checked) */}
+           
               {formData.manageWithBudget && (
                 <div>
                   <input
                     type="text"
                     required
                     className="w-full px-3 py-2 border rounded-lg text-sm"
-                    value={formData. budgetId || ""}
+                    value={formData.budgetId || ""}
                     placeholder="Paste Budget ID here"
                     onChange={(e) =>
-                      setFormData({ ...formData,  budgetId: e.target.value })
+                      setFormData({ ...formData, budgetId: e.target.value })
                     }
                   />
                 </div>
