@@ -187,7 +187,7 @@ const Budgets = () => {
             <thead>
               <tr className="border-b hover:bg-gray-50">
                 <th className="p-2 text-left">Budget ID</th>
-                <th className="p-2 text-left">Category</th>
+                <th className="p-2 text-left">Budget Name</th>
                 <th className="p-2 text-left">Amount</th>
                 <th className="p-2 text-left">Spent</th>
                 <th className="p-2 text-left">Remaining</th>
