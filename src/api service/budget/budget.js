@@ -75,13 +75,18 @@ export const registerBudget = async (
   
  
 
-  const addCategoryToBudget = async (budgetId, categoryName, subcategories) => {
+  export const addCategoryToBudget = async (budgetId, categoryName, subcategories) => {
     try {
+      console.log({
+        categoryName,
+        subcategories,
+      },'category to carry in database')
       const frontend = import.meta.env.VITE_BACKEND_URL;
-      const response = await axios.patch(`${frontend}/budget/add-category/${budgetId}`, {
+      const response = await axios.post(`${frontend}/budget/add-category/${budgetId}`, {
         categoryName,
         subcategories,
       });
+
       return response.data;
     } catch (error) {
       console.error("Error adding category:", error);

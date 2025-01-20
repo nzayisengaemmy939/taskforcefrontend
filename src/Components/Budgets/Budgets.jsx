@@ -1,6 +1,6 @@
 import { Copy, Edit, Pencil, Trash, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import {
+import addCategoryToBudget, {
   deleteBudget,
   getBudgets,
   registerBudget,
@@ -30,22 +30,14 @@ const Budgets = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [selectedBudget, setSelectedBudget] = useState(null);
-  const [budgets, setBudgets] = useState(data);
 
   const handleOpenCategoryModal = (budget) => {
     console.log("Opening Category Modal for Budget:", budget);
     setSelectedBudget(budget);
     setIsCategoryModalOpen(true);
   };
-
-  const addCategoryToBudget = (budgetId, newCategory) => {
-    setBudgets((prevBudgets) =>
-      prevBudgets.map((budget) =>
-        budget._id === budgetId
-          ? { ...budget, categories: [...budget.categories, newCategory] }
-          : budget
-      )
-    );
+  const catesub = {
+    category,
   };
 
   const formData = {
@@ -247,10 +239,10 @@ const Budgets = () => {
                       <Pencil />
                     </button>
                     <button
-                      className="bg-gray-200 text-green-500 px-2 py-1 rounded-md"
+                      className="bg-gray-200 text-gray-800 px-2 py-1 rounded-md"
                       onClick={() => handleOpenCategoryModal(budget)}
                     >
-                      Manage
+                      Manage category
                     </button>
                     {isModalOpen2 && (
                       <UpdateModel
@@ -272,9 +264,14 @@ const Budgets = () => {
           isOpen={isCategoryModalOpen}
           budget={selectedBudget}
           onClose={() => setIsCategoryModalOpen(false)}
-          onAddCategory={(budgetId, newCategory) => {
-            console.log(`Added category ${newCategory} to budget ${budgetId}`);
-            addCategoryToBudget(budgetId, newCategory);
+          onAddCategory={(budgetId, categoryName, subcategories) => {
+            addCategoryToBudget(budgetId, categoryName, subcategories).then(
+              () => toast.success("Category added successfully")
+            );
+            setIsCategoryModalOpen(false).catch((error) => {
+              console.error("Error adding category:", error);
+              toast.error(error.message);
+            });
           }}
         />
       )}

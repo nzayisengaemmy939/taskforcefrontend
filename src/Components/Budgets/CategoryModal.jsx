@@ -1,3 +1,4 @@
+import { X } from "lucide-react";
 import React, { useState } from "react";
 
 const CategoryModal = ({ isOpen, budget, onClose, onAddCategory }) => {
@@ -18,20 +19,37 @@ const CategoryModal = ({ isOpen, budget, onClose, onAddCategory }) => {
   };
 
   const handleAddCategory = () => {
-    if (newCategory.trim() && subcategories.length > 0) {
-      onAddCategory(budget._id, newCategory, subcategories);
-      setNewCategory("");
-      setSubcategories([""]);
-      setActiveTab("current");
-    } else {
-      alert("Please enter both category and at least one subcategory.");
+    if (!newCategory.trim()) {
+      alert("Category name cannot be empty.");
+      return;
     }
+  
+    if (subcategories.length === 0 || subcategories.some(sub => !sub.trim())) {
+      alert("Please add at least one valid subcategory.");
+      return;
+    }
+  
+    console.log("Category:", newCategory);
+    console.log("Subcategories:", subcategories);
+  
+    onAddCategory(budget._id, newCategory, subcategories);
+    setNewCategory("");
+    setSubcategories([""]);
+    setActiveTab("current");
   };
+  
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 t-[-26px]">
-      <div className="bg-white p-6 rounded-md shadow-md w-96">
-        <h2 className="text-xl font-bold mb-4">Manage Categories</h2>
+      <div className="bg-white p-6 rounded-md shadow-md w-[500px]">
+        <div className="flex justify-between items-center">
+        
+        <h2 className="text-xl font-bold ">Manage Categories</h2>
+        <button className="text-red-600" onClick={onClose}>
+          <X></X>
+        </button>
+        </div>
+     
         <div className="flex mb-4 border-b">
           <button
             className={`p-2 flex-1 text-center ${
@@ -56,7 +74,7 @@ const CategoryModal = ({ isOpen, budget, onClose, onAddCategory }) => {
         </div>
         {activeTab === "current" && (
           <div>
-            <h3 className="text-lg font-semibold mb-2">Categories:</h3>
+            <h3 className="text-lg font-semibold mb-2">Categories and subcategories:</h3>
             <ul className="list-disc pl-5">
               {budget.categories && budget.categories.length > 0 ? (
                 budget.categories.map((cat, index) => (
@@ -117,9 +135,7 @@ const CategoryModal = ({ isOpen, budget, onClose, onAddCategory }) => {
             </button>
           </div>
         )}
-        <button className="text-red-600 mt-4" onClick={onClose}>
-          Close
-        </button>
+       
       </div>
     </div>
   );

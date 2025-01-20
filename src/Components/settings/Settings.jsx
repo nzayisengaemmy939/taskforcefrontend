@@ -45,13 +45,8 @@ const Settings = ({
   const handleSaveChanges = async () => {
     try {
      const response= await updateProfile(data, setIsLoading);
-if(response.status==200){
-  toast.success("Profile updated successfully!");
-}
-else{
-  toast.error(response.message)
-}
-  
+
+     toast.success("Profile updated successfully!");
 
     } catch (error) {
       setIsLoading(false);

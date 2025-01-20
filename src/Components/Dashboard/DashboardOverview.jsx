@@ -30,7 +30,7 @@ const expenseCategories = [
   { name: "Entertainment", value: 100 },
 ];
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#FF6347"]; 
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#FF6347"];
 
 const DashboardOverview = () => {
   const [timeFilter, setTimeFilter] = useState("monthly");
@@ -60,14 +60,15 @@ const DashboardOverview = () => {
     income: data.totalIncome,
     expenses: data.totalExpense,
   }));
-  
+
   const totalIncome = monthlyData.reduce((sum, data) => sum + data.income, 0);
-  const totalExpenses = monthlyData.reduce((sum, data) => sum + data.expenses, 0);
+  const totalExpenses = monthlyData.reduce(
+    (sum, data) => sum + data.expenses,
+    0
+  );
   const currentBalance = totalIncome - totalExpenses;
 
-
-  
-  const StatCard = ({ title, amount, icon: Icon, trend,style }) => (
+  const StatCard = ({ title, amount, icon: Icon, trend, style }) => (
     <div className={`p-2 rounded shadow-sm mb-8 `} style={style}>
       <div className="flex items-center justify-between mb-1">
         <h3 className="text-gray-500 text-sm">{title}</h3>
@@ -141,25 +142,37 @@ const DashboardOverview = () => {
         <div className="bg-white p-2 rounded shadow-sm">
           <h3 className="text-xs font-semibold mb-2">Expense Breakdown</h3>
           <ResponsiveContainer width="100%" height={200}>
-            <PieChart margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
-              <Pie
-                data={categories}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name} ${percent.toFixed(0)}%`}
-                style={{ fontSize: "12px" }}
-                outerRadius={50}
-                fill="#8884d8"
-                dataKey="value"
+            {categories.length === 0 ? (
+              <div
+                style={{ textAlign: "center", fontSize: "16px", color: "#888" }}
               >
-                {categories.map((entry, index) => (
-  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-))}
-
-              </Pie>
-              <Tooltip contentStyle={{ fontSize: "10px" }} />
-            </PieChart>
+                No transactios found
+              </div>
+            ) : (
+              <PieChart margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+                <Pie
+                  data={categories}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) =>
+                    `${name} ${percent.toFixed(0)}%`
+                  }
+                  style={{ fontSize: "12px" }}
+                  outerRadius={50}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {categories.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip contentStyle={{ fontSize: "10px" }} />
+              </PieChart>
+            )}
           </ResponsiveContainer>
         </div>
       </div>

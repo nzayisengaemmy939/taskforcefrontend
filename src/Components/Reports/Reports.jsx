@@ -44,18 +44,20 @@ const Reports = () => {
         selectedAccounts.includes(transaction.account);
       return inDateRange && inAccounts;
     });
-
-    const incomeData = filteredTransactions.filter((t) => t.amount > 0); 
-    const expenseData = filteredTransactions.filter((t) => t.amount < 0); 
+    console.log(filteredTransactions, "filtered transactions");
+    const incomeData = filteredTransactions.filter((t) => t.type === "Income");
+    const expenseData = filteredTransactions.filter(
+      (t) => t.type === "Expense"
+    );
 
     return {
       totalIncome: incomeData.reduce((sum, t) => sum + parseFloat(t.amount), 0),
       totalExpenses: Math.abs(
         expenseData.reduce((sum, t) => sum + parseFloat(t.amount), 0)
-      ), // Ensure number parsing
+      ),
       categoryBreakdown: filteredTransactions.reduce((acc, t) => {
         const category = t.category;
-        acc[category] = (acc[category] || 0) + Math.abs(parseFloat(t.amount)); 
+        acc[category] = (acc[category] || 0) + Math.abs(parseFloat(t.amount));
         return acc;
       }, {}),
     };
@@ -63,11 +65,10 @@ const Reports = () => {
 
   const handleExport = () => {
     const doc = new jsPDF();
-    // Title
+
     doc.setFontSize(18);
     doc.text("Detailed Financial Transactions", 20, 10);
 
-    // Add table for transactions
     const tableData = transactions.map((transaction) => [
       format(new Date(transaction.date), "MM/dd/yyyy"),
       transaction.category,
@@ -82,7 +83,6 @@ const Reports = () => {
       startY: 20,
     });
 
-    // Save PDF
     doc.save("transaction_report.pdf");
   };
 
@@ -152,7 +152,6 @@ const Reports = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {/* Income vs Expenses Bar Chart */}
         <div className="bg-white p-4 rounded-lg shadow-sm">
           <h3 className="text-sm font-semibold mb-4 text-blue-400">
             Income vs Expenses
@@ -179,32 +178,41 @@ const Reports = () => {
             Income and Expenses Breakdown
           </h3>
           <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={[
-                  { name: "Income", value: summaryData.totalIncome },
-                  { name: "Expenses", value: summaryData.totalExpenses },
-                ]}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) =>
-                  `${name} (${(percent * 100).toFixed(0)}%)`
-                }
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-                style={{ fontSize: "12px" }}
+            {summaryData.totalIncome === 0 &&
+            summaryData.totalExpenses === 0 ? (
+              <div
+                style={{ textAlign: "center", fontSize: "30px", color: "#888",padding:'px' }}
               >
-                {["Income", "Expenses"].map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={index === 0 ? "#4CAF50" : "#FF6347"}
-                  />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
+                No transactions found
+              </div>
+            ) : (
+              <PieChart>
+                <Pie
+                  data={[
+                    { name: "Income", value: summaryData.totalIncome },
+                    { name: "Expenses", value: summaryData.totalExpenses },
+                  ]}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) =>
+                    `${name} (${(percent * 100).toFixed(0)}%)`
+                  }
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                  style={{ fontSize: "12px" }}
+                >
+                  {["Income", "Expenses"].map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={index === 0 ? "#4CAF50" : "#FF6347"}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            )}
           </ResponsiveContainer>
         </div>
       </div>
